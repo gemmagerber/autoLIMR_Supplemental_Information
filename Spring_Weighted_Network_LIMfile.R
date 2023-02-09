@@ -1,16 +1,16 @@
 ! Weighted Network
 ! Network LIM Declaration File
 ! Composed with autoLIMR
-! Author: gemma
-! Date: 2023-01-22
+! Author: Gemma Gerber
+! Date: 2023-02-07
 
 ! Respiration included: Yes
 ! U included: Yes
 
-! Living compartments: 4
-! Non-living compartments: 0
+! Living compartments: 3
+! Non-living compartments: 1
 ! External compartments: 9
-! Boundary flows: 13
+! Boundary flows: 12
 ! Internal flows: 6
 
 ! Abbreviations
@@ -27,21 +27,21 @@
 
 ### COMPARTMENTS
 
-Det = 9000.0000
 Invert = 1000.0000
 Plant = 700.5000
 Vert = 44.0000
+DetNLNode = 9000.0000
 
 ### END COMPARTMENTS
 
 ### EXTERNALS
 
 CO2
-DetImport
+DetNLNodeImport
 InvertImport
 PlantImport
 VertImport
-DetExport
+DetNLNodeExport
 InvertExport
 PlantExport
 VertExport
@@ -52,21 +52,18 @@ VertExport
 
 ! Consumption (Q) / Gross Primary Production (GPP) Variables
 
-Det_Q = Flowto(Det) - Det_IM
 Invert_Q = Flowto(Invert) - Invert_IM
 Plant_GPP = Flowto(Plant) - Plant_IM
 Vert_Q = Flowto(Vert) - Vert_IM
 
 ! Production (P/NPP) Variables
 
-Det_P = Flowfrom(Det) - Det_R - Det_U - Det_EX
 Invert_P = Flowfrom(Invert) - Invert_R - Invert_U - Invert_EX
 Plant_NPP = Flowfrom(Plant) - Plant_R - Plant_U - Plant_EX
 Vert_P = Flowfrom(Vert) - Vert_R - Vert_U - Vert_EX
 
 ! Unused Energy/Material (U) Variables
 
-Det_U = Flowto(Det) - Det_P - Det_R - Det_EX
 Invert_U = Flowto(Invert) - Invert_P - Invert_R - Invert_EX
 Plant_U = Flowto(Plant) - Plant_NPP - Plant_R - Plant_EX
 Vert_U = Flowto(Vert) - Vert_P - Vert_R - Vert_EX
@@ -83,33 +80,32 @@ Plant_GPP: CO2 -> Plant
 
 ! Respiration flows
 
-Det_R: Det -> CO2
 Plant_R: Plant -> CO2
 Invert_R: Invert -> CO2
 Vert_R: Vert -> CO2
 
 ! Import flows
 
-Det_IM: DetImport -> Det
+DetNLNode_IM: DetNLNodeImport -> DetNLNode
 Invert_IM: InvertImport -> Invert
 Plant_IM: PlantImport -> Plant
 Vert_IM: VertImport -> Vert
 
 ! Export flows
 
-Det_EX: Det -> DetExport
+DetNLNode_EX: DetNLNode -> DetNLNodeExport
 Plant_EX: Plant -> PlantExport
 Invert_EX: Invert -> InvertExport
 Vert_EX: Vert -> VertExport
 
 ! Adjacency Matrix flows
 
-Det_Q_Invert: Det -> Invert
-Invert_Q_Det: Invert -> Det
+DetNLNode_Q_Invert: DetNLNode -> Invert
 Invert_Q_Vert: Invert -> Vert
-Plant_Q_Det: Plant -> Det
+Invert_U_DetNLNode: Invert -> DetNLNode
 Plant_Q_Invert: Plant -> Invert
-Vert_Q_Det: Vert -> Det
+Plant_U_DetNLNode: Plant -> DetNLNode
+Vert_U_DetNLNode: Vert -> DetNLNode
 
 ### END FLOWS
 
@@ -117,13 +113,13 @@ Vert_Q_Det: Vert -> Det
 
 ! Network Data Input Inequalities
 
-Plant_GPP > 400.0000
-Plant_GPP < 5000.0000
-Plant_NPP > 0.5000
-Invert_P > 0.003*Invert_U
+Plant_GPP > 950.0000
+Plant_GPP < 1850.0000
+Plant_NPP > 0.5*Plant_GPP
+Invert_P > 0.3*Invert_Q
 Vert_P > 0.0003
-Invert_P < 0.005*Invert_U
-Vert_P < 0.0040
+Plant_NPP < 1*Plant_GPP
+Invert_P < 0.5*Invert_Q
 Plant_R > 0.3*Plant_NPP
 Invert_R > 0.9*Invert_P
 Vert_R > 0.6500
